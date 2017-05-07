@@ -1,0 +1,4 @@
+﻿NetLib library is shared under Creative Commons 4.0 BY-SA license.
+https://creativecommons.org/licenses/by-sa/4.0/
+
+Author: Microeinstein
