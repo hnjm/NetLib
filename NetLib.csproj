@@ -55,11 +55,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="license.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\ThreadTimer\ThreadTimer.csproj">
       <Project>{95119619-90ec-41bb-bae8-afb0c5b38301}</Project>
       <Name>ThreadTimer</Name>
