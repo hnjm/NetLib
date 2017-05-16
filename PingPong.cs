@@ -16,7 +16,7 @@ namespace Micro.NetLib {
 
         public PingPong(Link l) {
             timer = new Timer(tennis);
-            timer.Tick += tick;
+            timer.Tick += ping;
             link = l;
         }
 
@@ -26,13 +26,16 @@ namespace Micro.NetLib {
         public void stop() {
             timer.stop();
         }
+        public void pingReply() {
+            link.write(true, EnumString(InternalCommands.pong));
+        }
         public void pong() {
             counter = 0;
             waiting = false;
         }
-        void tick() {
+        void ping() {
             if (!waiting) {
-                link.write(true, EnumString(commands.ping));
+                link.write(true, EnumString(InternalCommands.ping));
                 waiting = true;
             }
         }
