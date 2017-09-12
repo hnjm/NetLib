@@ -1,12 +1,10 @@
-﻿#pragma warning disable CS4014
-using System;
-using System.Linq;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 using Micro.ThreadTimer;
 using static Micro.NetLib.Core;
+using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Micro.NetLib {
     public class Link : Identified {
@@ -14,97 +12,96 @@ namespace Micro.NetLib {
         public event Action<StopReason> disconnect;
         public readonly TcpClient client;
         public LinkStates state { get; set; }
+        readonly Clock clock;
+        readonly PingPong pingPong;
+        readonly Queue<Data> sendQueue;
+        string buffer;
         bool sending;
-        string buffer, buffOld;
-        Timer clock;
-        ConcurrentQueue<Data> sendQueue;
         Data tempData;
-        PingPong pingPong;
 
-        public Link(TcpClient c, Guid id = default(Guid)) : base() {
+        public Link(TcpClient c, SGuid id = default(SGuid)) {
             client = c;
-            clock = new Timer(linkTick);
-            clock.Tick += read;
+            clock = new Clock(linkTick, read);
+            pingPong = new PingPong(this, timeout);
             sending = false;
             buffer = "";
-            sendQueue = new ConcurrentQueue<Data>();
+            sendQueue = new Queue<Data>();
             ID = id;
             state = LinkStates.creating;
-            pingPong = new PingPong(this);
-            pingPong.timeout += timeout;
         }
-
-        public void start() {
-            clock.start();
-            pingPong.start();
+        public void Start() {
+            clock.Start();
+            pingPong.Start();
         }
-        public void stop() {
-            pingPong.stop();
-            clock.stop();
+        public void Stop() {
+            pingPong.Stop();
+            clock.Stop();
             debugNotice(this);
         }
-        public void write(bool intern, params string[] cmds) {
+        public void Write(bool intern, params string[] cmds) {
             var d = new Data(intern, cmds);
             if (intern || !sending)
                 write(d);
-            else
-                sendQueue.Enqueue(d);
+            else {
+                lock (sendQueue)
+                    sendQueue.Enqueue(d);
+            }
         }
         void read() {
-            if (client.Connected) {
+            lock (client) {
+                if (!client.Connected)
+                    return;
                 if (client.Available > 0) {
                     var data = new byte[client.Available];
                     client.GetStream().Read(data, 0, data.Length);
-                    var str = Data.decode(data);
-                    buffer += str;
+                    buffer += Data.Decode(data);
                 }
-                
-                if (buffer.Length > 0) {
-                    do {
-                        buffOld = buffer;
-                        tempData = new Data();
-                        tempData.addRaw(buffer, out buffer);
-                        if (tempData.isComplete)
-                            interpret(tempData.Clone());
-                    } while (buffer != buffOld);
-                }
+            }
+            if (buffer.Length > 0) {
+                string buffOld;
+                do {
+                    buffOld = buffer; //<-- important
+                    tempData = new Data();
+                    tempData.AddRaw(buffer, out buffer);
+                    if (tempData.IsComplete)
+                        interpret(tempData.Clone());
+                } while (buffer != buffOld);
             }
         }
         void interpret(Data pkt) {
-            Task.Run(() => {
-                if (!pkt.isNew) {
-                    debugRaw(false, pkt);
-                    if (pkt.IsCommand(InternalCommands.received))
-                        nextPacket();
-                    else if (pkt.IsCommand(InternalCommands.ping))
-                        pingPong.pingReply();
-                    else if (pkt.IsCommand(InternalCommands.pong))
-                        pingPong.pong();
-                    else {
-                        if (!pkt.intern)
-                            write(true, EnumString(InternalCommands.received));
-                        received(pkt);
-                    }
-                }
-            });
+            if (pkt.IsNew)
+                return;
+            debugRaw(false, pkt);
+            if (pkt.IsCommand(InternalCommands.received))
+                nextPacket();
+            else if (pkt.IsCommand(InternalCommands.ping))
+                lock (pingPong)
+                    pingPong.pingReply();
+            else if (pkt.IsCommand(InternalCommands.pong))
+                lock (pingPong)
+                    pingPong.pong();
+            else {
+                if (!pkt.Intern)
+                    Write(true, EnumString(InternalCommands.received));
+                received?.Invoke(pkt);
+            }
         }
-        void timeout() {
-            disconnect(StopReason.timeout);
-        }
-
+        void timeout()
+            => disconnect(StopReason.timeout);
         void nextPacket() {
-            if (sendQueue.Count > 0) {
-                if (sendQueue.TryDequeue(out Data deq))
-                    write(deq);
-            } else
-                sending = false;
+            lock (sendQueue) {
+                if (sendQueue.Count > 0)
+                    write(sendQueue.Dequeue());
+                else
+                    sending = false;
+            }
         }
-        async Task write(Data data) {
+        void write(Data data) {
             if (client.Connected) {
                 try {
                     debugRaw(true, data);
-                    var bytes = data.getBytes();
-                    await client.GetStream().WriteAsync(bytes, 0, bytes.Length);
+                    byte[] bytes = data.GetBytes();
+                    client.GetStream().Write(bytes, 0, bytes.Length);
                 } catch (Exception) {
                     disconnect(StopReason.dropped);
                 }

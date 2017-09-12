@@ -53,6 +53,12 @@
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.splitRaw = new System.Windows.Forms.SplitContainer();
             this.tableRaw = new System.Windows.Forms.DataGridView();
+            this.rawDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.rawDirection = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.rawID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.rawLength = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.rawInternal = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.rawAmount = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tableRawMsg = new System.Windows.Forms.DataGridView();
             this.msgIndex = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.msgLength = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -67,19 +73,14 @@
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.splitHigh = new System.Windows.Forms.SplitContainer();
             this.tableHigh = new System.Windows.Forms.DataGridView();
+            this.highDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.highAction = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.highCommand = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.highInvolved = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.highAdditional = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tableHighMsg = new System.Windows.Forms.DataGridView();
             this.dirIndex = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dirMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.highDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.highAction = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.highInvolved = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.highAdditional = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.rawDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.rawDirection = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.rawID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.rawLength = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.rawInternal = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.rawAmount = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.splitMain)).BeginInit();
             this.splitMain.Panel1.SuspendLayout();
             this.splitMain.Panel2.SuspendLayout();
@@ -121,7 +122,7 @@
             // splitMain.Panel2
             // 
             this.splitMain.Panel2.Controls.Add(this.tabControl1);
-            this.splitMain.Size = new System.Drawing.Size(884, 361);
+            this.splitMain.Size = new System.Drawing.Size(884, 461);
             this.splitMain.SplitterDistance = 164;
             this.splitMain.TabIndex = 1;
             // 
@@ -144,8 +145,8 @@
             this.splitLeft.Panel2.Controls.Add(this.cbDirectives);
             this.splitLeft.Panel2.Controls.Add(this.cbCommands);
             this.splitLeft.Panel2.Controls.Add(this.cbRaw);
-            this.splitLeft.Size = new System.Drawing.Size(164, 361);
-            this.splitLeft.SplitterDistance = 258;
+            this.splitLeft.Size = new System.Drawing.Size(164, 461);
+            this.splitLeft.SplitterDistance = 358;
             this.splitLeft.TabIndex = 2;
             // 
             // treeView
@@ -179,7 +180,7 @@
             treeNode1,
             treeNode5});
             this.treeView.PathSeparator = "/";
-            this.treeView.Size = new System.Drawing.Size(164, 258);
+            this.treeView.Size = new System.Drawing.Size(164, 358);
             this.treeView.TabIndex = 0;
             // 
             // cbRmUnused
@@ -240,7 +241,7 @@
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(716, 361);
+            this.tabControl1.Size = new System.Drawing.Size(716, 461);
             this.tabControl1.TabIndex = 1;
             // 
             // tabPage1
@@ -249,7 +250,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(708, 335);
+            this.tabPage1.Size = new System.Drawing.Size(708, 435);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Raw packets";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -269,8 +270,8 @@
             // splitRaw.Panel2
             // 
             this.splitRaw.Panel2.Controls.Add(this.tableRawMsg);
-            this.splitRaw.Size = new System.Drawing.Size(702, 329);
-            this.splitRaw.SplitterDistance = 217;
+            this.splitRaw.Size = new System.Drawing.Size(702, 429);
+            this.splitRaw.SplitterDistance = 317;
             this.splitRaw.TabIndex = 1;
             // 
             // tableRaw
@@ -317,8 +318,50 @@
             this.tableRaw.RowTemplate.ReadOnly = true;
             this.tableRaw.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.tableRaw.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.tableRaw.Size = new System.Drawing.Size(702, 217);
+            this.tableRaw.Size = new System.Drawing.Size(702, 317);
             this.tableRaw.TabIndex = 1;
+            // 
+            // rawDate
+            // 
+            this.rawDate.HeaderText = "At";
+            this.rawDate.Name = "rawDate";
+            this.rawDate.ReadOnly = true;
+            this.rawDate.Width = 41;
+            // 
+            // rawDirection
+            // 
+            this.rawDirection.HeaderText = "Direction";
+            this.rawDirection.Name = "rawDirection";
+            this.rawDirection.ReadOnly = true;
+            this.rawDirection.Width = 73;
+            // 
+            // rawID
+            // 
+            this.rawID.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.rawID.HeaderText = "From ~ To";
+            this.rawID.Name = "rawID";
+            this.rawID.ReadOnly = true;
+            // 
+            // rawLength
+            // 
+            this.rawLength.HeaderText = "Length";
+            this.rawLength.Name = "rawLength";
+            this.rawLength.ReadOnly = true;
+            this.rawLength.Width = 64;
+            // 
+            // rawInternal
+            // 
+            this.rawInternal.HeaderText = "Internal";
+            this.rawInternal.Name = "rawInternal";
+            this.rawInternal.ReadOnly = true;
+            this.rawInternal.Width = 47;
+            // 
+            // rawAmount
+            // 
+            this.rawAmount.HeaderText = "Size";
+            this.rawAmount.Name = "rawAmount";
+            this.rawAmount.ReadOnly = true;
+            this.rawAmount.Width = 51;
             // 
             // tableRawMsg
             // 
@@ -390,7 +433,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(708, 335);
+            this.tabPage2.Size = new System.Drawing.Size(708, 435);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Internal commands";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -437,7 +480,7 @@
             this.tableCommands.RowTemplate.Height = 20;
             this.tableCommands.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.tableCommands.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.tableCommands.Size = new System.Drawing.Size(702, 329);
+            this.tableCommands.Size = new System.Drawing.Size(702, 429);
             this.tableCommands.TabIndex = 2;
             // 
             // intDate
@@ -457,7 +500,7 @@
             // intID
             // 
             this.intID.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.intID.HeaderText = "From / To";
+            this.intID.HeaderText = "From ~ To";
             this.intID.Name = "intID";
             this.intID.ReadOnly = true;
             // 
@@ -481,7 +524,7 @@
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(708, 335);
+            this.tabPage3.Size = new System.Drawing.Size(708, 435);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "High-Level Data";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -500,8 +543,8 @@
             // splitHigh.Panel2
             // 
             this.splitHigh.Panel2.Controls.Add(this.tableHighMsg);
-            this.splitHigh.Size = new System.Drawing.Size(702, 329);
-            this.splitHigh.SplitterDistance = 190;
+            this.splitHigh.Size = new System.Drawing.Size(702, 429);
+            this.splitHigh.SplitterDistance = 247;
             this.splitHigh.TabIndex = 4;
             // 
             // tableHigh
@@ -526,6 +569,7 @@
             this.tableHigh.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.highDate,
             this.highAction,
+            this.highCommand,
             this.highInvolved,
             this.highAdditional});
             dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
@@ -545,8 +589,43 @@
             this.tableHigh.RowTemplate.Height = 20;
             this.tableHigh.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.tableHigh.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.tableHigh.Size = new System.Drawing.Size(702, 190);
+            this.tableHigh.Size = new System.Drawing.Size(702, 247);
             this.tableHigh.TabIndex = 3;
+            // 
+            // highDate
+            // 
+            this.highDate.HeaderText = "At";
+            this.highDate.Name = "highDate";
+            this.highDate.ReadOnly = true;
+            this.highDate.Width = 41;
+            // 
+            // highAction
+            // 
+            this.highAction.HeaderText = "Action";
+            this.highAction.Name = "highAction";
+            this.highAction.ReadOnly = true;
+            this.highAction.Width = 61;
+            // 
+            // highCommand
+            // 
+            this.highCommand.HeaderText = "Command";
+            this.highCommand.Name = "highCommand";
+            this.highCommand.ReadOnly = true;
+            this.highCommand.Width = 78;
+            // 
+            // highInvolved
+            // 
+            this.highInvolved.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.highInvolved.HeaderText = "From → To ~ User";
+            this.highInvolved.Name = "highInvolved";
+            this.highInvolved.ReadOnly = true;
+            // 
+            // highAdditional
+            // 
+            this.highAdditional.HeaderText = "Size ~ Reason";
+            this.highAdditional.Name = "highAdditional";
+            this.highAdditional.ReadOnly = true;
+            this.highAdditional.Width = 101;
             // 
             // tableHighMsg
             // 
@@ -587,7 +666,7 @@
             this.tableHighMsg.RowTemplate.Height = 20;
             this.tableHighMsg.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.tableHighMsg.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.tableHighMsg.Size = new System.Drawing.Size(702, 135);
+            this.tableHighMsg.Size = new System.Drawing.Size(702, 178);
             this.tableHighMsg.TabIndex = 7;
             // 
             // dirIndex
@@ -604,81 +683,11 @@
             this.dirMessage.Name = "dirMessage";
             this.dirMessage.ReadOnly = true;
             // 
-            // highDate
-            // 
-            this.highDate.HeaderText = "At";
-            this.highDate.Name = "highDate";
-            this.highDate.ReadOnly = true;
-            this.highDate.Width = 41;
-            // 
-            // highAction
-            // 
-            this.highAction.HeaderText = "Action";
-            this.highAction.Name = "highAction";
-            this.highAction.ReadOnly = true;
-            this.highAction.Width = 61;
-            // 
-            // highInvolved
-            // 
-            this.highInvolved.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.highInvolved.HeaderText = "From -> To / User";
-            this.highInvolved.Name = "highInvolved";
-            this.highInvolved.ReadOnly = true;
-            // 
-            // highAdditional
-            // 
-            this.highAdditional.HeaderText = "Size / Reason";
-            this.highAdditional.Name = "highAdditional";
-            this.highAdditional.ReadOnly = true;
-            this.highAdditional.Width = 99;
-            // 
-            // rawDate
-            // 
-            this.rawDate.HeaderText = "At";
-            this.rawDate.Name = "rawDate";
-            this.rawDate.ReadOnly = true;
-            this.rawDate.Width = 41;
-            // 
-            // rawDirection
-            // 
-            this.rawDirection.HeaderText = "Direction";
-            this.rawDirection.Name = "rawDirection";
-            this.rawDirection.ReadOnly = true;
-            this.rawDirection.Width = 73;
-            // 
-            // rawID
-            // 
-            this.rawID.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.rawID.HeaderText = "From / To";
-            this.rawID.Name = "rawID";
-            this.rawID.ReadOnly = true;
-            // 
-            // rawLength
-            // 
-            this.rawLength.HeaderText = "Length";
-            this.rawLength.Name = "rawLength";
-            this.rawLength.ReadOnly = true;
-            this.rawLength.Width = 64;
-            // 
-            // rawInternal
-            // 
-            this.rawInternal.HeaderText = "Internal";
-            this.rawInternal.Name = "rawInternal";
-            this.rawInternal.ReadOnly = true;
-            this.rawInternal.Width = 47;
-            // 
-            // rawAmount
-            // 
-            this.rawAmount.HeaderText = "Size";
-            this.rawAmount.Name = "rawAmount";
-            this.rawAmount.ReadOnly = true;
-            this.rawAmount.Width = 51;
-            // 
             // FormDebug
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(884, 361);
+            this.ClientSize = new System.Drawing.Size(884, 461);
             this.Controls.Add(this.splitMain);
             this.DoubleBuffered = true;
             this.Name = "FormDebug";
@@ -731,11 +740,6 @@
         private System.Windows.Forms.CheckBox cbRaw;
         private System.Windows.Forms.DataGridView tableCommands;
         private System.Windows.Forms.DataGridView tableHigh;
-        private System.Windows.Forms.DataGridViewTextBoxColumn intDate;
-        private System.Windows.Forms.DataGridViewTextBoxColumn intDirection;
-        private System.Windows.Forms.DataGridViewTextBoxColumn intID;
-        private System.Windows.Forms.DataGridViewTextBoxColumn intCommand;
-        private System.Windows.Forms.DataGridViewTextBoxColumn intLinkState;
         private System.Windows.Forms.SplitContainer splitHigh;
         private System.Windows.Forms.DataGridViewTextBoxColumn msgIndex;
         private System.Windows.Forms.DataGridViewTextBoxColumn msgLength;
@@ -744,15 +748,21 @@
         private System.Windows.Forms.DataGridView tableHighMsg;
         private System.Windows.Forms.DataGridViewTextBoxColumn dirIndex;
         private System.Windows.Forms.DataGridViewTextBoxColumn dirMessage;
-        private System.Windows.Forms.DataGridViewTextBoxColumn highDate;
-        private System.Windows.Forms.DataGridViewTextBoxColumn highAction;
-        private System.Windows.Forms.DataGridViewTextBoxColumn highInvolved;
-        private System.Windows.Forms.DataGridViewTextBoxColumn highAdditional;
         private System.Windows.Forms.DataGridViewTextBoxColumn rawDate;
         private System.Windows.Forms.DataGridViewTextBoxColumn rawDirection;
         private System.Windows.Forms.DataGridViewTextBoxColumn rawID;
         private System.Windows.Forms.DataGridViewTextBoxColumn rawLength;
         private System.Windows.Forms.DataGridViewCheckBoxColumn rawInternal;
         private System.Windows.Forms.DataGridViewTextBoxColumn rawAmount;
+        private System.Windows.Forms.DataGridViewTextBoxColumn intDate;
+        private System.Windows.Forms.DataGridViewTextBoxColumn intDirection;
+        private System.Windows.Forms.DataGridViewTextBoxColumn intID;
+        private System.Windows.Forms.DataGridViewTextBoxColumn intCommand;
+        private System.Windows.Forms.DataGridViewTextBoxColumn intLinkState;
+        private System.Windows.Forms.DataGridViewTextBoxColumn highDate;
+        private System.Windows.Forms.DataGridViewTextBoxColumn highAction;
+        private System.Windows.Forms.DataGridViewTextBoxColumn highCommand;
+        private System.Windows.Forms.DataGridViewTextBoxColumn highInvolved;
+        private System.Windows.Forms.DataGridViewTextBoxColumn highAdditional;
     }
 }

@@ -64,15 +64,15 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="FormDebug.resx">
+      <DependentUpon>FormDebug.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\ThreadTimer\ThreadTimer.csproj">
       <Project>{95119619-90ec-41bb-bae8-afb0c5b38301}</Project>
       <Name>ThreadTimer</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="FormDebug.resx">
-      <DependentUpon>FormDebug.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

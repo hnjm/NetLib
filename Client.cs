@@ -1,94 +1,88 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 using static Micro.NetLib.Core;
 
 namespace Micro.NetLib {
-    public class Client : Identified, IDisposable {
-        TcpClient tcp;
+    public class Client : Identified {
         public event Action<bool> connected;
         public event Action<StopReason, string> disconnected;
         public event Action<Directive> received;
-
         public bool Connected { get; private set; }
         public readonly string hostname;
-        public readonly int port;
+        public readonly ushort port;
         Link link;
+        TcpClient tcp;
 
-        public Client(string hostname, int port, Guid? customID = null) : base() {
+        public Client(string hostname, ushort port, SGuid? customID = null) {
             tcp = new TcpClient();
             this.hostname = hostname;
             this.port = port;
-            ID = customID ?? Guid.NewGuid();
+            ID = customID ?? SGuid.NewSGuid();
         }
-        public void Dispose() {
+        public void Connect() {
             if (Connected)
-                disconnect();
-            tcp = null;
-            link = null;
-            debugInstances.Remove(this);
-        }
-
-        public void connect() {
-            if (!Connected) {
-                Task.Run(() => {
-                    bool res;
-                    try {
-                        redirect = link = new Link(tcp, ID);
-                        link.received += read;
-                        link.disconnect += (a) => endDisconnect(a, "");
-                        res = tcp.ConnectAsync(hostname, port).Wait(3000);
-                    } catch (Exception) {
-                        res = false;
-                        connected(false);
-                    }
-                    Connected = res;
-                    if (res) {
-                        link.start();
-                        link.write(true, EnumString(InternalCommands.connect), ID.ToString());
-                        debugInstances.Add(this);
-                        linkTables(link);
-                    }
-                });
+                return;
+            bool res = false;
+            try {
+                redirect = link = new Link(tcp, ID);
+                link.received += read;
+                link.disconnect += a => _disconnect(a, "");
+                tcp.ConnectAsync(hostname, port).Wait(connectTimeout);
+                res = true;
+            } catch (Exception) {
+                connected?.Invoke(false);
+            }
+            Connected = res;
+            if (res) {
+                link.Start();
+                link.Write(true, EnumString(InternalCommands.connect), ID.ToString());
+                debugInstances.Add(this);
+                linkTables(link);
             }
         }
-        public void disconnect() {
+        public void Disconnect() {
             write(true, EnumString(InternalCommands.disconnect), EnumString(StopReason.user), "");
-            endDisconnect(StopReason.user, "");
+            lock (this) {
+                _disconnect(StopReason.user, "");
+                tcp = null;
+                link = null;
+            }
+            debugInstances.Remove(this);
         }
-        public void write(params Directive[] msgs) {
+        public void Write(params Directive[] msgs) {
             write(false, msgs.AllStrings());
         }
-
         void read(Data data) {
-            if (data.intern) {
-                InternalCommands cmd = StringEnum<InternalCommands>(data.cmds[0]);
+            if (data.Intern) {
+                var cmd = StringEnum<InternalCommands>(data.Cmds[0]);
                 link.debugCommand(false, link, cmd);
-                
                 if (cmd == InternalCommands.ok && link.state == LinkStates.creating) {
-                    link.state = LinkStates.none;
-                    connected(true);
+                    lock (link)
+                        link.state = LinkStates.ready;
+                    connected?.Invoke(true);
                     debugNotice(this);
                 }
-                if (cmd == InternalCommands.disconnect && link.state == LinkStates.none)
-                    endDisconnect(StringEnum<StopReason>(data.cmds[1]), data.cmds[2]);
-            } else {
+                if (cmd == InternalCommands.disconnect && link.state == LinkStates.ready)
+                    _disconnect(StringEnum<StopReason>(data.Cmds[1]), data.Cmds[2]);
+            }
+            else {
                 write(true, EnumString(InternalCommands.ok));
-                foreach (var cmd in data.cmds)
+                foreach (string cmd in data.Cmds)
                     received(Directive.Parse(cmd));
             }
         }
         void write(bool intern, params string[] cmds) {
-            link.write(intern, cmds);
+            link.Write(intern, cmds);
             if (intern)
                 link.debugCommand(true, link, cmds);
         }
-        void endDisconnect(StopReason reason, string additional) {
+        void _disconnect(StopReason reason, string additional) {
             Connected = false;
-            tcp.Close();
-            link.stop();
-            disconnected(reason, additional);
+            lock (tcp)
+                tcp.Close();
+            lock (link)
+                link.Stop();
+            disconnected?.Invoke(reason, additional);
             debugNotice(this);
         }
     }
