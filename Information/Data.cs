@@ -8,7 +8,7 @@ using static Micro.NetLib.Core;
  *  Message:                                                     [text start][base64 text][text end]
  */
 
-namespace Micro.NetLib {
+namespace Micro.NetLib.Information {
     public class Data {
         public const string packetStart = "\x1",
             packetEnd = "\x4",
@@ -39,13 +39,14 @@ namespace Micro.NetLib {
                 @"(.*)"));
         string rawData;
 
-        public Data() { }
+        public Data() {
+        }
         public Data(bool intern, params string[] cmds) {
             if (cmds.Length == 0)
                 throw new ArgumentException("Empty cmds.");
 
-            this.Cmds = cmds;
-            this.Intern = intern;
+            Cmds = cmds;
+            Intern = intern;
             Length = Capsule.Length;
         }
         public void AddRaw(string data, out string excess) {
@@ -57,12 +58,13 @@ namespace Micro.NetLib {
                     Intern = grps[3].Value == "1";
                     rawData = grps[4].Value;
                     excess = grps[1].Value + grps[5].Value;
-                }
-                else { excess = data; }
-            }
-            else { excess = data; }
+                } else
+                    excess = data;
+            } else
+                excess = data;
         }
-        public byte[] GetBytes() => Encode(Packet);
+        public byte[] GetBytes()
+            => Encode(Packet);
         public bool IsCommand(InternalCommands cmd)
             => Intern && Cmds[0] == EnumString(cmd);
         public Data Clone()
@@ -92,11 +94,13 @@ namespace Micro.NetLib {
 
             return ret;
         }
-        public static byte[] Encode(string text) => Encoding.ASCII.GetBytes(text);
-        public static string Decode(byte[] data) => Encoding.ASCII.GetString(data);
-        public static string ToBase64(string text) => Convert.ToBase64String(Encode(text));
-        public static string FromBase64(string base64) => Regex.IsMatch(base64, $"^{regexBase64}$")
-            ? Decode(Convert.FromBase64String(base64))
-            : base64;
+        public static byte[] Encode(string text)
+            => Encoding.ASCII.GetBytes(text);
+        public static string Decode(byte[] data)
+            => Encoding.ASCII.GetString(data);
+        public static string ToBase64(string text)
+            => Convert.ToBase64String(Encode(text));
+        public static string FromBase64(string base64)
+            => Regex.IsMatch(base64, $"^{regexBase64}$") ? Decode(Convert.FromBase64String(base64)) : base64;
     }
 }

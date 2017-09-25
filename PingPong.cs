@@ -1,9 +1,9 @@
 ﻿using System;
-using Micro.ThreadTimer;
+using Micro.Utils;
 using static Micro.NetLib.Core;
 
 namespace Micro.NetLib {
-    public class PingPong {
+    internal class PingPong {
         public event Action timeout;
         readonly Link link;
         readonly Clock timer;

@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("NetLib")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microeinstein")]
+[assembly: AssemblyCompany("Micro")]
 [assembly: AssemblyProduct("NetLib")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]

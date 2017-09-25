@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Net.Sockets;
+using Micro.NetLib.Information;
 using static Micro.NetLib.Core;
 
 namespace Micro.NetLib {
-    public class Client : Identified {
-        public event Action<bool> connected;
-        public event Action<StopReason, string> disconnected;
+    internal class Client : Identified {
+        public event StartHandler connected;
+        public event StopHandler disconnected;
         public event Action<Directive> received;
         public bool Connected { get; private set; }
         public readonly string hostname;
@@ -41,17 +42,16 @@ namespace Micro.NetLib {
             }
         }
         public void Disconnect() {
-            write(true, EnumString(InternalCommands.disconnect), EnumString(StopReason.user), "");
+            write(true, EnumString(InternalCommands.disconnect), EnumString(LeaveReason.user), "");
             lock (this) {
-                _disconnect(StopReason.user, "");
+                _disconnect(LeaveReason.user, "");
                 tcp = null;
                 link = null;
             }
             debugInstances.Remove(this);
         }
-        public void Write(params Directive[] msgs) {
-            write(false, msgs.AllStrings());
-        }
+        public void Write(params Directive[] msgs)
+            => write(false, msgs.AllSerialize());
         void read(Data data) {
             if (data.Intern) {
                 var cmd = StringEnum<InternalCommands>(data.Cmds[0]);
@@ -63,9 +63,8 @@ namespace Micro.NetLib {
                     debugNotice(this);
                 }
                 if (cmd == InternalCommands.disconnect && link.state == LinkStates.ready)
-                    _disconnect(StringEnum<StopReason>(data.Cmds[1]), data.Cmds[2]);
-            }
-            else {
+                    _disconnect(StringEnum<LeaveReason>(data.Cmds[1]), data.Cmds[2]);
+            } else {
                 write(true, EnumString(InternalCommands.ok));
                 foreach (string cmd in data.Cmds)
                     received(Directive.Parse(cmd));
@@ -76,7 +75,7 @@ namespace Micro.NetLib {
             if (intern)
                 link.debugCommand(true, link, cmds);
         }
-        void _disconnect(StopReason reason, string additional) {
+        void _disconnect(LeaveReason reason, string additional) {
             Connected = false;
             lock (tcp)
                 tcp.Close();

@@ -1,8 +1,9 @@
 ﻿using System.Text.RegularExpressions;
 using static Micro.NetLib.Core;
 
-namespace Micro.NetLib {
-    public class Directive {
+namespace Micro.NetLib.Information {
+    internal class Directive : ISerializable, IParsable<Directive> {
+        //type_sguid_sguid_values
         public const string textSep_s = "_";
         public const char textSep_c = '_';
         public static Regex regx = new Regex(
@@ -15,6 +16,7 @@ namespace Micro.NetLib {
         public SGuid from, to;
         public ManagedCommands type;
         public string[] values;
+        //match problem?
 
         public Directive(ManagedCommands type, SGuid from, params string[] values) {
             this.type = type;
@@ -28,7 +30,9 @@ namespace Micro.NetLib {
             this.to = to;
             this.values = values;
         }
-        internal static Directive Parse(string msg) {
+        public string Serialize()
+            => string.Join(textSep_s, EnumString(type), from, to, Data.PushStrings(values, textSep_s));
+        public static Directive Parse(string msg) {
             GroupCollection grps = regx.Match(msg).Groups;
             return new Directive(
                 StringEnum<ManagedCommands>(grps[1].Value),
@@ -36,8 +40,9 @@ namespace Micro.NetLib {
                 SGuid.Parse(grps[3].Value),
                 Data.PullStrings(grps[4].Value, textSep_c));
         }
-        public override string ToString() => string.Join(textSep_s, EnumString(type), from, to,
-            Data.PushStrings(values, textSep_s));
-        public static implicit operator string(Directive m) => m.ToString();
+        public static implicit operator string(Directive m)
+            => m.Serialize();
+        Directive IParsable<Directive>.Parse(string str)
+            => Parse(str);
     }
 }

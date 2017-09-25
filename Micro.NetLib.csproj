@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Micro.NetLib</RootNamespace>
-    <AssemblyName>NetLib</AssemblyName>
+    <AssemblyName>Micro.NetLib</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -18,17 +18,19 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -36,16 +38,16 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstraction\Ties.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="Core.cs" />
-    <Compile Include="Data.cs" />
+    <Compile Include="Information\Data.cs" />
     <Compile Include="FormDebug.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -53,12 +55,12 @@
       <DependentUpon>FormDebug.cs</DependentUpon>
     </Compile>
     <Compile Include="Link.cs" />
-    <Compile Include="Directive.cs" />
-    <Compile Include="Connection.cs" />
+    <Compile Include="Information\Directive.cs" />
+    <Compile Include="Abstraction\Connection.cs" />
     <Compile Include="PingPong.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server.cs" />
-    <Compile Include="User.cs" />
+    <Compile Include="Information\User.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -69,9 +71,13 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ThreadTimer\ThreadTimer.csproj">
+    <ProjectReference Include="..\Micro.Utils.EventList\Micro.Utils.EventList.csproj">
+      <Project>{d892f66e-8dc1-45a8-a460-69940084f964}</Project>
+      <Name>Micro.Utils.EventList</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Micro.Utils.ThreadTimer\Micro.Utils.ThreadTimer.csproj">
       <Project>{95119619-90ec-41bb-bae8-afb0c5b38301}</Project>
-      <Name>ThreadTimer</Name>
+      <Name>Micro.Utils.ThreadTimer</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

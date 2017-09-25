@@ -259,3 +259,6 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/Abstraction/ClientSteward.cs
+/Abstraction/ServerSteward.cs
+/Abstraction/Steward.cs

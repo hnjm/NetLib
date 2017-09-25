@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using Micro.NetLib.Information;
 using static Micro.NetLib.Core;
 
 namespace Micro.NetLib {
-    public partial class FormDebug : Form {
+    internal partial class FormDebug : Form {
         readonly TreeNodeCollection clientsAll;
         readonly TreeNodeCollection clientsOff;
         readonly TreeNodeCollection clientsOn;
@@ -39,14 +40,17 @@ namespace Micro.NetLib {
             cbRaw.CheckedChanged += (a, b) => trackRaw = cbRaw.Checked;
             cbCommands.CheckedChanged += (a, b) => trackCommands = cbCommands.Checked;
             cbDirectives.CheckedChanged += (a, b) => trackHigh = cbDirectives.Checked;
-            debugInstances.added += a => {
-                if (!closed) Invoke(new Action<Identified>(objectAdded), a);
+            debugInstances.ItemAdd += (a, b) => {
+                if (!closed)
+                    Invoke(new Action<Identified>(objectAdded), a);
             };
-            debugInstances.removed += a => {
-                if (!closed) Invoke(new Action<Identified>(objectRemoved), a);
+            debugInstances.ItemRemove += (a, b) => {
+                if (!closed)
+                    Invoke(new Action<Identified>(objectRemoved), a);
             };
             dbgNotice += a => {
-                if (!closed) Invoke(new Action<Identified>(notice), a);
+                if (!closed)
+                    Invoke(new Action<Identified>(notice), a);
             };
             treeView.NodeMouseClick += refreshAll;
             tableRaw.RowEnter += showRawMsg;
@@ -149,19 +153,19 @@ namespace Micro.NetLib {
                 if (lastSelected != null)
                     lastSelected.bind.clearEvents();
                 lastSelected = dn;
-                Identified b = dn.bind;
-                b.tRaw.added += a => addRaw(b, a);
-                b.tCommand.added += a => addCommand(b, a);
-                b.tHigh.added += a => addHigh(b, a);
+                Identified idBind = dn.bind;
+                idBind.tRaw.ItemAdd += (a, b) => addRaw(idBind, a);
+                idBind.tCommand.ItemAdd += (a, b) => addCommand(idBind, a);
+                idBind.tHigh.ItemAdd += (a, b) => addHigh(idBind, a);
                 tableRawMsg.Rows.Clear();
                 tableRaw.Rows.Clear();
                 tableCommands.Rows.Clear();
                 tableHigh.Rows.Clear();
-                foreach (object[] row in b.tRaw.ToList())
+                foreach (object[] row in idBind.tRaw.ToList())
                     addRaw(null, row);
-                foreach (object[] row in b.tCommand.ToList())
+                foreach (object[] row in idBind.tCommand.ToList())
                     addCommand(null, row);
-                foreach (object[] row in b.tHigh.ToList())
+                foreach (object[] row in idBind.tHigh.ToList())
                     addHigh(null, row);
             }
         }
@@ -224,7 +228,7 @@ namespace Micro.NetLib {
                     if (reallyIntern)
                         if (wasDisconnect) {
                             wasDisconnect = false;
-                            col3 = StringEnum<StopReason>(cmds[i]);
+                            col3 = StringEnum<LeaveReason>(cmds[i]);
                         }
                         else {
                             var cmd = StringEnum<InternalCommands>(cmds[i]);
@@ -249,12 +253,29 @@ namespace Micro.NetLib {
                     for (var i = 0; i < dir.values.Length; i++)
                         tableHighMsg.Rows.Add(i,
                             i == 0 && dir.type == ManagedCommands.leave
-                                ? StringEnum<StopReason>(dir.values[i]).ToString()
+                                ? StringEnum<LeaveReason>(dir.values[i]).ToString()
                                 : dir.values[i]);
             }
         }
 
         public class DebugNode : TreeNode {
+            public Client bindClient
+                => isClient ? (Client) bind : throw new InvalidOperationException();
+            public Server bindServer
+                => isServer ? (Server) bind : throw new InvalidOperationException();
+            public Link bindLink
+                => isLink ? (Link) bind : throw new InvalidOperationException();
+            public SGuid ID
+                => bind.ID;
+            public new string Text {
+                get => _text;
+                set {
+                    _text = value;
+                    base.Text = value != null ? $"{value} @{ID}" : ID + "";
+                }
+            }
+            public new string ToolTipText
+                => Text;
             public readonly Identified bind;
             string _text;
             public bool isClient, isServer, isLink;
@@ -265,19 +286,8 @@ namespace Micro.NetLib {
                 isLink = obj is Link;
                 Text = text;
             }
-            public Client bindClient => isClient ? (Client) bind : throw new InvalidOperationException();
-            public Server bindServer => isServer ? (Server) bind : throw new InvalidOperationException();
-            public Link bindLink => isLink ? (Link) bind : throw new InvalidOperationException();
-            public SGuid ID => bind.ID;
-            public new string Text {
-                get => _text;
-                set {
-                    _text = value;
-                    base.Text = value != null ? $"{value} @{ID}" : ID + "";
-                }
-            }
-            public new string ToolTipText => Text;
-            public new DebugNode Clone() => new DebugNode(bind, _text);
+            public new DebugNode Clone()
+                => new DebugNode(bind, _text);
         }
     }
 }

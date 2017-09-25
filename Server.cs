@@ -1,17 +1,19 @@
-﻿using System;
+﻿#pragma warning disable CS0168
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using Micro.ThreadTimer;
+using Micro.Utils;
+using Micro.NetLib.Information;
 using static Micro.NetLib.Core;
 
 namespace Micro.NetLib {
-    public class Server : Identified {
+    internal class Server : Identified {
         public event Action<SGuid> joinClient;
-        public event Action<SGuid, StopReason, string> leaveClient;
+        public event Action<SGuid, LeaveReason, string> leaveClient;
         public event Action<Directive> received;
-        public event Action<bool> listening;
+        public event StartHandler listening;
         public event Action stopped;
         public bool Listening { get; private set; }
         public readonly ushort port;
@@ -39,19 +41,19 @@ namespace Micro.NetLib {
                 state = LinkStates.listening;
                 clock.Start();
                 Listening = true;
-                listening?.Invoke(true);
                 debugInstances.Add(this);
-            }
-            catch (Exception) {
+            } catch (Exception ex) {
+                if (state == LinkStates.listening)
+                    tcp.Stop();
                 state = LinkStates.ready;
                 clock.Stop();
                 Listening = false;
-                listening?.Invoke(false);
             }
+            listening?.Invoke(Listening);
         }
         public void Stop() {
             state = LinkStates.disconnecting;
-            broadcast(true, EnumString(InternalCommands.disconnect), EnumString(StopReason.serverStop), "");
+            broadcast(true, EnumString(InternalCommands.disconnect), EnumString(LeaveReason.serverStop), "");
             Listening = false;
             state = LinkStates.ready;
             clock.Stop();
@@ -67,17 +69,16 @@ namespace Micro.NetLib {
         public void Write(SGuid id, params Directive[] msgs) {
             Link link = _clients.Find(a => a.ID == id);
             if (link != null)
-                write(link, false, msgs.AllStrings());
+                write(link, false, msgs.AllSerialize());
         }
-        public void Broadcast(Directive msg, SGuid[] skip = null) {
-            broadcast(false, skip, msg);
-        }
+        public void Broadcast(Directive msg, SGuid[] skip = null)
+            => broadcast(false, skip, msg);
         public void Kick(SGuid id, string reason) {
             Link link;
             lock (_clients)
                 link = _clients.Find(a => a.ID == id);
             if (link != null) {
-                var rsn = StopReason.kicked;
+                var rsn = LeaveReason.kicked;
                 write(link, true, EnumString(InternalCommands.disconnect), EnumString(rsn), reason);
                 disconnect(link, rsn, reason);
             }
@@ -110,9 +111,8 @@ namespace Micro.NetLib {
                     debugNotice(this);
                 }
                 if (cmd == InternalCommands.disconnect && link.state == LinkStates.ready)
-                    disconnect(link, StringEnum<StopReason>(data.Cmds[1]), data.Cmds[2]);
-            }
-            else {
+                    disconnect(link, StringEnum<LeaveReason>(data.Cmds[1]), data.Cmds[2]);
+            } else {
                 write(link, true, EnumString(InternalCommands.ok));
                 foreach (string cmd in data.Cmds)
                     received(Directive.Parse(cmd));
@@ -124,7 +124,7 @@ namespace Micro.NetLib {
                 link.Write(intern, cmds);
             } catch (Exception) {
                 success = false;
-                disconnect(link, StopReason.dropped, "");
+                disconnect(link, LeaveReason.dropped, "");
             }
             if (success && intern)
                 link.debugCommand(true, link, cmds);
@@ -136,7 +136,7 @@ namespace Micro.NetLib {
                 if (!(skip?.Contains(l.ID) ?? false))
                     write(l, intern, cmds);
         }
-        void disconnect(Link link, StopReason reason, string additional) {
+        void disconnect(Link link, LeaveReason reason, string additional) {
             lock (link)
                 link.Stop();
             lock (_clients)

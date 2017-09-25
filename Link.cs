@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
-using Micro.ThreadTimer;
+using Micro.Utils;
+using Micro.NetLib.Information;
 using static Micro.NetLib.Core;
-using System.Threading.Tasks;
-using System.Diagnostics;
 
 namespace Micro.NetLib {
-    public class Link : Identified {
+    internal class Link : Identified {
         public event Action<Data> received;
-        public event Action<StopReason> disconnect;
-        public readonly TcpClient client;
+        public event Action<LeaveReason> disconnect;
         public LinkStates state { get; set; }
+        public readonly TcpClient client;
         readonly Clock clock;
         readonly PingPong pingPong;
         readonly Queue<Data> sendQueue;
@@ -87,7 +86,7 @@ namespace Micro.NetLib {
             }
         }
         void timeout()
-            => disconnect(StopReason.timeout);
+            => disconnect(LeaveReason.timeout);
         void nextPacket() {
             lock (sendQueue) {
                 if (sendQueue.Count > 0)
@@ -101,9 +100,9 @@ namespace Micro.NetLib {
                 try {
                     debugRaw(true, data);
                     byte[] bytes = data.GetBytes();
-                    client.GetStream().Write(bytes, 0, bytes.Length);
+                    client.GetStream().WriteAsync(bytes, 0, bytes.Length);
                 } catch (Exception) {
-                    disconnect(StopReason.dropped);
+                    disconnect(LeaveReason.dropped);
                 }
             }
         }
